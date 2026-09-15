@@ -1,5 +1,4 @@
 #include "Task.h"
-
 #include <iostream>
 using namespace std;
 
@@ -15,8 +14,14 @@ int Task::getId() const
 {
     return id;
 }
-
-
+int Task::getPriority() const
+{
+    return priority;
+}
+string Task::getName() const
+{
+    return name;
+}
 bool Task::isCompleted() const
 {
     return completed;

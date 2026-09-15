@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-
 using namespace std;
 
 class Task
@@ -16,11 +15,11 @@ public:
     Task(int taskId, string taskName, int taskPriority);
 
     int getId() const;
+    string getName() const;
     bool isCompleted() const;
-
-    void complete();
+    int getPriority() const;
     void setName(string newName);
     void setPriority(int newPriority);
-
+    void complete();
     void display() const;
 };

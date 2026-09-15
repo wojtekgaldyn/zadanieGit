@@ -4,4 +4,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="dodawanieZadan/dodawanieZadan.vcxproj" Id="7b8c4f98-7b1b-4dd4-b635-cbc3f3a0780e" />
+  <Project Path="dodawanieZadanTests/dodawanieZadanTests.vcxproj" />
 </Solution>
