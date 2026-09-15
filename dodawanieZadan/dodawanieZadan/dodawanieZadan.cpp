@@ -3,51 +3,57 @@
 #include <string>
 
 #include "Task.h"
-
+using namespace std;
 int main()
 {
-    std::vector<Task> tasks;
+    vector<Task> tasks;
 
     int nextId = 1;
     int choice;
 
     while (true)
     {
-        std::cout << "\n===== TASK MANAGER =====\n";
-        std::cout << "1. Dodaj zadanie\n";
-        std::cout << "2. Pokaz zadania\n";
-        std::cout << "3. Oznacz jako wykonane\n";
-        std::cout << "4. Usun zadanie\n";
-        std::cout << "0. Wyjscie\n";
-        std::cout << "Wybierz: ";
+        cout << "\n===== TASK MANAGER =====\n";
+        cout << "1. Dodaj zadanie\n";
+        cout << "2. Pokaz zadania\n";
+        cout << "3. Oznacz jako wykonane\n";
+        cout << "4. Edytuj zadanie\n";
+        cout << "5. Usun zadanie\n";
+        cout << "0. Wyjscie\n";
+        cout << "Wybierz: ";
 
-        std::cin >> choice;
-        std::cin.ignore();
+        cin >> choice;
+        cin.ignore();
 
         if (choice == 1)
         {
-            std::string name;
+            string name;
             int priority;
 
-            std::cout << "Podaj nazwe zadania: ";
-            std::getline(std::cin, name);
+            cout << "Podaj nazwe zadania: ";
+            getline(cin, name);
 
-            std::cout << "Podaj priorytet (1-3): ";
-            std::cin >> priority;
+            cout << "Podaj priorytet (1-3): ";
+            cin >> priority;
 
-            Task newTask(nextId, name, priority);
+            if (priority >= 1 && priority <= 3) {
+                Task newTask(nextId, name, priority);
 
-            tasks.push_back(newTask);
+                tasks.push_back(newTask);
 
-            nextId++;
+                nextId++;
 
-            std::cout << "Dodano zadanie.\n";
+                cout << "Dodano zadanie.\n";
+            }
+            else {
+                cout << "Zle podano dane\n";
+            }
         }
         else if (choice == 2)
         {
             if (tasks.empty())
             {
-                std::cout << "Brak zadan.\n";
+                cout << "Brak zadan.\n";
             }
             else
             {
@@ -61,8 +67,8 @@ int main()
         {
             int id;
 
-            std::cout << "Podaj ID zadania: ";
-            std::cin >> id;
+            cout << "Podaj ID zadania: ";
+            cin >> id;
 
             bool found = false;
 
@@ -72,22 +78,50 @@ int main()
                 {
                     task.complete();
                     found = true;
-                    std::cout << "Zadanie oznaczone jako wykonane.\n";
+                    cout << "Zadanie oznaczone jako wykonane.\n";
                     break;
                 }
             }
 
             if (!found)
             {
-                std::cout << "Nie znaleziono zadania.\n";
+                cout << "Nie znaleziono zadania.\n";
             }
         }
         else if (choice == 4)
         {
             int id;
+            string newName;
+            int newPriority;
 
-            std::cout << "Podaj ID zadania do usuniecia: ";
-            std::cin >> id;
+            cout << "Podaj ID zadania do edytowania: ";
+            cin >> id;
+            cin.ignore();
+
+            bool found = false;
+            for (Task& task : tasks) {
+                if (task.getId() == id) {
+                    found = true;
+                    cout << "Podaj nowa nazwe: ";
+                    getline(cin, newName);
+                    task.setName(newName);
+                    cout << "Podaj priorytet zadania\n";
+                    cin >> newPriority;
+                    task.setPriority(newPriority);
+                    cout << "Zadanie zostalo edytowane.\n";
+                    break;
+                }
+            }
+            if (!found) {
+                cout << "Nie znaleziono tego zadania. \n";
+            }
+        }
+        else if (choice == 5)
+        {
+            int id;
+
+            cout << "Podaj ID zadania do usuniecia: ";
+            cin >> id;
 
             bool found = false;
 
@@ -98,24 +132,24 @@ int main()
                     tasks.erase(it);
                     found = true;
 
-                    std::cout << "Zadanie usuniete.\n";
+                    cout << "Zadanie usuniete.\n";
                     break;
                 }
             }
 
             if (!found)
             {
-                std::cout << "Nie znaleziono zadania.\n";
+                cout << "Nie znaleziono zadania.\n";
             }
         }
         else if (choice == 0)
         {
-            std::cout << "Koniec programu.\n";
+            cout << "Koniec programu.\n";
             break;
         }
         else
         {
-            std::cout << "Nieprawidlowa opcja.\n";
+            cout << "Nieprawidlowa opcja.\n";
         }
     }
 

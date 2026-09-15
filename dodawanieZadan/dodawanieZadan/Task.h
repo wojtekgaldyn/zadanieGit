@@ -2,22 +2,25 @@
 
 #include <string>
 
+using namespace std;
+
 class Task
 {
 private:
     int id;
-    std::string name;
+    string name;
     bool completed;
     int priority;
 
 public:
-    Task(int taskId, std::string taskName, int taskPriority);
+    Task(int taskId, string taskName, int taskPriority);
 
     int getId() const;
-    std::string getName() const;
     bool isCompleted() const;
-    int getPriority() const;
 
     void complete();
+    void setName(string newName);
+    void setPriority(int newPriority);
+
     void display() const;
 };
