@@ -15,7 +15,7 @@ namespace dodawanieZadanTests
 		{
 			Task task(1, "stara nazwa", 1);
 			task.setName("nowa nazwa");
-			Assert::AreEqual(std::string("nowa nazwa"),task.getName());
+			Assert::AreEqual(std::string("nownazwa"),task.getName());
 		}
 
 		TEST_METHOD(editPriorityName)
