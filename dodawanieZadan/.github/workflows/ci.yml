@@ -1,0 +1,37 @@
+name: Build and Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Pobierz kod
+        uses: actions/checkout@v4
+
+      - name: Znajdz MSBuild
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Zbuduj projekt
+        run: msbuild "dodawanieZadan.slnx" /p:Configuration=Debug /p:Platform=x64
+
+      - name: Uruchom testy
+        shell: powershell
+        run: |
+          $testDll = Get-ChildItem -Path . -Recurse -Filter "dodawanieZadanTests.dll" |
+                     Where-Object { $_.FullName -match "\\x64\\Debug\\" } |
+                     Select-Object -First 1
+
+          if (-not $testDll) {
+              Write-Error "Nie znaleziono pliku dodawanieZadanTests.dll"
+              exit 1
+          }
+
+          & vstest.console.exe $testDll.FullName
+
+          if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+          }
