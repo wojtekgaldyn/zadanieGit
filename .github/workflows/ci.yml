@@ -3,10 +3,19 @@ name: Build and Test
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
     runs-on: windows-latest
+
+    env:
+      SOLUTION: dodawanieZadan/dodawanieZadan.slnx
+      CONFIGURATION: Debug
+      PLATFORM: x64
 
     steps:
       - name: Pobierz kod
@@ -15,23 +24,43 @@ jobs:
       - name: Znajdz MSBuild
         uses: microsoft/setup-msbuild@v3
 
-      - name: Zbuduj projekt
-        run: msbuild "dodawanieZadan.slnx" /p:Configuration=Debug /p:Platform=x64
+      - name: Zbuduj rozwiazanie
+        shell: pwsh
+        run: msbuild $env:SOLUTION /p:Configuration=$env:CONFIGURATION /p:Platform=$env:PLATFORM /m
+
+      # vstest.console.exe nie jest w PATH na runnerze - trzeba go najpierw znalezc.
+      # vswhere.exe to narzedzie Microsoftu, ktore mowi, gdzie stoi Visual Studio.
+      - name: Znajdz vstest.console.exe
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "Nie znaleziono vswhere.exe" }
+
+          $vstest = & $vswhere -latest -products * -find "**\VSTest.Console.exe" | Select-Object -First 1
+          if (-not $vstest) { throw "Nie znaleziono VSTest.Console.exe" }
+
+          Write-Host "vstest: $vstest"
+          "VSTEST=$vstest" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Uruchom testy
-        shell: powershell
+        shell: pwsh
         run: |
-          $testDll = Get-ChildItem -Path . -Recurse -Filter "dodawanieZadanTests.dll" |
-                     Where-Object { $_.FullName -match "\\x64\\Debug\\" } |
-                     Select-Object -First 1
+          $podkatalog = [IO.Path]::Combine($env:PLATFORM, $env:CONFIGURATION)
+          $dll = Get-ChildItem -Path . -Recurse -Filter dodawanieZadanTests.dll |
+                 Where-Object { $_.FullName -like "*$podkatalog*" } |
+                 Select-Object -First 1
 
-          if (-not $testDll) {
-              Write-Error "Nie znaleziono pliku dodawanieZadanTests.dll"
-              exit 1
-          }
+          if (-not $dll) { throw "Nie znaleziono dodawanieZadanTests.dll - czy build sie powiodl?" }
 
-          & vstest.console.exe $testDll.FullName
+          Write-Host "testy: $($dll.FullName)"
+          & $env:VSTEST $dll.FullName /Platform:$env:PLATFORM /logger:trx /ResultsDirectory:TestResults
 
-          if ($LASTEXITCODE -ne 0) {
-              exit $LASTEXITCODE
-          }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Zapisz wyniki testow
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wyniki-testow
+          path: TestResults/
+          if-no-files-found: ignore
